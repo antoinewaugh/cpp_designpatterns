@@ -198,4 +198,53 @@ _Example:_ Reporing component should depend on a ConsoleLogger but can depend on
 
 Generally: dependencies on interfaces and supertypes, not on concrete types.
 
+### Boost DI
+
+Boost DI is a dependency injection library which helps construct objects which depend upon multiple objects.
+
+```
+struct Engine { int volume, horsepwr;};
+struct Car(Engine& e);
+
+int main() {
+  auto e = Engine{5,100};
+  auto c = Car(e);
+}
+```
+
+This can be tedious when an object depends on many other classes. Using boost DI:
+
+```
+using namespace boost;
+auto injector = di::make_injector();
+auto c = injector.create<Car>();
+
+```
+
+The injector looks at the constructor and can determine it takes an engine, so boost di will create a default engine in this scenario.
+
+A more involved example:
+
+```
+struct ILogger {
+  virtual ~ILogger() {}
+  virtual void Log(std::string const& s) = 0;
+};
+
+struct ConsoleLog {
+  void Log(std::string const& s) { std::cout << s << std::endl; }
+}
+
+int main() {
+  auto injector = di::amke_injector(
+    di::bind<ILogger>().to<ConsoleLogger>()
+  );
+}
+```
+
+Now, all times the logger is referred the di framework will substitute the ILogger -> ConsoleLogger. 
+
+This will be specifically helpful when going from dev -> uat -> prod.
+
+The BoostDI is a very large component, and manages many things under the hood for us.
 
