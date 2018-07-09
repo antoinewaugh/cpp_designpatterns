@@ -248,3 +248,64 @@ This will be specifically helpful when going from dev -> uat -> prod.
 
 The BoostDI is a very large component, and manages many things under the hood for us.
 
+## Creational Patterns
+
+### Builder Pattern
+
+When piecewise object construction is complicated, provide an API for doing it succinctly.
+
+Consider a webserver implementation.
+
+```
+int main() {
+
+  // building a string out of substrings, with a more convenient / elegant way than simply concatenating string
+  auto text = "hello";
+  
+  auto html_builder = HtmlBuilder("ul");
+  html_builder.add_child("li", "hello");
+  html_builder.add_child("li", "workld");
+  
+  auto server = Webserver();  
+  server.serve(html_builder);
+  
+}
+```
+
+The above can be further improved, by creating a fluent api. There is nothing magical about the fluent api other than the calls to `add_child` will return a reference to the builder to enable chaining of commands.
+
+
+```
+
+int main() {
+
+  // building a string out of substrings, with a more convenient / elegant way than simply concatenating string
+  auto text = "hello";
+  
+  auto element = HtmlElement::build("ul")
+              .add_child("li", "hello")
+              .add_child("li", "workld");
+  
+  auto server = Webserver();  
+  server.serve(element);
+  
+}
+```
+
+It is conceivable, that we may want separate builders to separate concerns of the build process.
+
+```
+struct PersonBuilder {
+  Person p;
+protected:
+  Person& person;
+  explicit PersonBuilder(Person& person) : person(person) {}
+}
+
+class Person {
+  std::string address, postcode, city;
+  std::string company, position;
+public:
+  static PersonBuilder build();
+}
+```
